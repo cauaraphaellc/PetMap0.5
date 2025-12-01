@@ -33,7 +33,6 @@ const hoteis = [
 // Variável global do mapa
 let map;
 
-// ------------ FUNÇÃO PRINCIPAL - CHAMADA AO CARREGAR A PÁGINA ------------
 function initMap() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -49,7 +48,6 @@ function initMap() {
     }
 }
 
-// ------------ CRIAÇÃO DO MAPA ------------
 function criarMapa(center) {
     map = L.map('map', { zoomControl: false, attributionControl: false }).setView([center.lat, center.lng], 14);
 
@@ -60,7 +58,6 @@ function criarMapa(center) {
     adicionarHoteis();
 }
 
-// ------------ MARCADOR DO USUÁRIO (AZUL) ------------
 function adicionarMarcadorUsuario(center) {
     const userIcon = L.divIcon({
         className: "user-marker",
@@ -72,7 +69,6 @@ function adicionarMarcadorUsuario(center) {
     L.marker([center.lat, center.lng], { icon: userIcon }).bindPopup("Você").addTo(map);
 }
 
-// ------------ MARCADORES DOS HOTÉIS (VERMELHO) ------------
 function adicionarHoteis() {
     hoteis.forEach(hotel => adicionarMarcadorHotel(hotel));
 }
@@ -93,7 +89,6 @@ function adicionarMarcadorHotel(hotel) {
         });
 }
 
-// ------------ EXIBE INFORMAÇÕES DO HOTEL ABAIXO DO MAPA ------------
 function exibirHotel(hotel) {
     const box = document.getElementById("hotel-info");
     box.style.display = "block";
@@ -149,7 +144,6 @@ function exibirHotel(hotel) {
     iniciarCarrossel();
 }
 
-// ------------ CARROSSEL SIMPLES ------------
 function iniciarCarrossel() {
     const imgs = document.querySelectorAll(".carousel-img");
     let idx = 0;
@@ -162,7 +156,6 @@ function iniciarCarrossel() {
     }, 2500);
 }
 
-// ------------ OBTER COORDENADAS VIA API NOMINATIM ------------
 async function obterCoordenadas(endereco) {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}`;
 
@@ -184,7 +177,6 @@ async function obterCoordenadas(endereco) {
     }
 }
 
-// ------------ CADASTRAR HOTEL NOVO VIA ENDEREÇO ------------
 async function cadastrarHotel(nome, endereco) {
     const coords = await obterCoordenadas(endereco);
     if (!coords) return;
@@ -203,7 +195,6 @@ async function cadastrarHotel(nome, endereco) {
     alert("Hotel cadastrado com sucesso!");
 }
 
-// ----------------- CARREGAR HOTÉIS DO FIREBASE -----------------
 import { db } from "./firebase.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
@@ -233,13 +224,11 @@ async function carregarHoteisFirebase() {
     }
 }
 
-// ----------------- INICIALIZAÇÃO -----------------
 window.onload = async () => {
     initMap();                  // inicializa o mapa
     await carregarHoteisFirebase(); // adiciona hotéis do Firebase
 };
 
-// ------------ BUSCA DE HOTÉIS ------------
 const searchInput = document.querySelector(".search-input");
 
 searchInput.addEventListener("keypress", async (e) => {
@@ -265,3 +254,4 @@ searchInput.addEventListener("keypress", async (e) => {
         }
     }
 });
+

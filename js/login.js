@@ -18,7 +18,6 @@ import { auth, db } from "./firebase.js";
 const registerForm = document.getElementById("tab-register");
 const loginForm = document.getElementById("tab-login");
 
-// ---------------------- CADASTRO ----------------------
 registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -48,7 +47,6 @@ registerForm.addEventListener("submit", async (e) => {
     }
 });
 
-// ---------------------- LOGIN ----------------------
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -75,7 +73,6 @@ loginForm.addEventListener("submit", async (e) => {
     }
 });
 
-// ---------------------- AUTO LOGIN ----------------------
 // Se o usuário já estiver logado, redireciona diretamente para hotel.html
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -88,3 +85,4 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "hotel.html";
     }
 });
+

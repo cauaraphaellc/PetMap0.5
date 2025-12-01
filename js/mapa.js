@@ -1,4 +1,3 @@
-// ----------- CONFIGURAÇÃO DOS HOTÉIS (ADICIONE OS SEUS AQUI) ------------
 const hoteis = [
     { 
         nome: "Pet Hotel Alpha", 
@@ -254,4 +253,5 @@ searchInput.addEventListener("keypress", async (e) => {
         }
     }
 });
+
 

@@ -14,7 +14,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 35%; /* <<< Ajuste aqui */
+    object-position: center 35%;
     z-index: 0;
 }
 
@@ -46,7 +46,6 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
-/* Search CTA Section */
 .search-cta {
     padding: 3rem 1.5rem;
     background-color: #FFFBF0;
@@ -78,7 +77,6 @@
     transform: scale(1.05);
 }
 
-/* Content Section */
 .content-section {
     padding: 4rem 1.5rem;
     background-color: #FFFBF0;
@@ -147,13 +145,11 @@
     font-weight: 500;
 }
 
-/* Tips Section Specific */
 .tips-section {
     padding: 3rem 1.5rem;
     background-color: #FFF8E7;
 }
 
-/* Info Sections (Quem Somos & Contato) */
 .info-section {
     padding: 4rem 1.5rem;
     background-color: #FFFBF0;
@@ -208,7 +204,6 @@
     margin-right: 0.5rem;
 }
 
-/* Contact Form */
 .contact-form-container {
     max-width: 600px;
     margin: 0 auto 3rem;
@@ -297,7 +292,6 @@
     text-align: center;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .hero h1 {
         font-size: 2.5rem;

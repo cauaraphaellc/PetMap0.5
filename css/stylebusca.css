@@ -10,7 +10,7 @@ body {
     flex-direction: column;
 }
 
-/* Main Content */
+
 main {
     flex: 1;
     padding: 2rem 1.5rem;
@@ -29,7 +29,7 @@ main {
     color: #4D2C0F;
 }
 
-/* Tips Section Specific */
+
 .tips-section {
     padding: 2rem 0;
 }
@@ -39,7 +39,7 @@ main {
     margin: 0 auto;
 }
 
-/* Search Bar */
+
 .search-container {
     max-width: 900px;
     margin: 2rem auto;
@@ -71,7 +71,7 @@ main {
     box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.5);
 }
 
-/* Map Section */
+
 .map-container {
     max-width: 900px;
     margin: 2rem auto;
@@ -103,7 +103,7 @@ main {
     color: #9CA3AF;
 }
 
-/* Map Markers */
+
 .marker {
     position: absolute;
     width: 32px;
@@ -152,12 +152,11 @@ main {
     left: 66%;
 }
 
-/* Footer Specific */
+
 footer {
     margin-top: auto;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .page-title {
         font-size: 2rem;

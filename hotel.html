@@ -1,150 +1,130 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seu Hotel - PetMap</title>
-    <meta name="description" content="Gerencie as informações do seu hotel pet-friendly no PetMap">
-    <link rel="stylesheet" href="css/styledefault.css">
-    <link rel="stylesheet" href="css/stylehotel.css">
-    <script src="js/hotel.js"></script>
-</head>
-<body>
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-    <header>
-        <div class="header-container">
-            <a href="index.html" class="logo">
-                <img src="img/Logo750.png" alt="Logo PetMap" class="logo-img">
-                <span class="logo-text">PetMap</span>
-            </a>
-            <nav>
-                <a href="index.html">Início</a>
-                <a href="busca.html">Buscar Hotel</a>
-                <a href="login.html" class="PagAtual">Acesso para dono de Hotel</a>
-            </nav>
+const hoteis = [
+    { nome: "Pet Hotel Alpha", endereco: "Rua das Flores, 123, São Paulo", lat: -23.505, lng: -46.850, imagens: ["default1.jpg", "default2.jpg", "default3.jpg"], rating: 5 },
+    { nome: "Pet House Barueri", endereco: "Av. Barueri, 456, Barueri", lat: -23.511, lng: -46.875, imagens: ["default1.jpg", "default2.jpg", "default3.jpg"], rating: 5 },
+    { nome: "Dog Resort Jandira", endereco: "Rua Jandira, 789, Jandira", lat: -23.532, lng: -46.902, imagens: ["default1.jpg", "default2.jpg", "default3.jpg"], rating: 5 },
+];
 
+let map;
+
+document.addEventListener("DOMContentLoaded", () => {
+    initMap();
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (logoutBtn) {
+            logoutBtn.style.display = "inline-block";
+            logoutBtn.onclick = async () => {
+                try {
+                    await signOut(auth);
+                    window.location.href = "login.html";
+                } catch (e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        const docRef = doc(db, "hoteis", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const dados = docSnap.data();
+            const nome = document.getElementById("nome");
+            const endereco = document.getElementById("endereco");
+            const pets = document.getElementById("pets");
+            const email = document.getElementById("email");
+            const telefone = document.getElementById("telefone");
+            if (nome) nome.value = dados.nome || "";
+            if (endereco) endereco.value = dados.endereco || "";
+            if (pets) pets.value = dados.pets || "";
+            if (email) email.value = dados.email || "";
+            if (telefone) telefone.value = dados.telefone || "";
+        }
+    });
+});
+
+function initMap() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            pos => criarMapa({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            () => criarMapa({ lat: -23.5505, lng: -46.6333 }),
+            { enableHighAccuracy: true }
+        );
+    } else {
+        criarMapa({ lat: -23.5505, lng: -46.6333 });
+    }
+}
+
+function criarMapa(center) {
+    map = L.map('map', { zoomControl: false, attributionControl: false }).setView([center.lat, center.lng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+    L.control.zoom({ position: "bottomleft" }).addTo(map);
+    adicionarMarcadorUsuario(center);
+    adicionarHoteis();
+}
+
+function adicionarMarcadorUsuario(center) {
+    const userIcon = L.divIcon({ className: "user-marker", html: `<div style="width:26px;height:26px;background:#2563EB;border:3px solid white;border-radius:50%;box-shadow:0 4px 8px rgba(0,0,0,0.3),0 0 12px rgba(37,99,235,0.5);"></div>`, iconSize: [26,26], iconAnchor: [13,13] });
+    L.marker([center.lat, center.lng], { icon: userIcon }).bindPopup("Você").addTo(map);
+}
+
+function adicionarHoteis() {
+    hoteis.forEach(hotel => adicionarMarcadorHotel(hotel));
+}
+
+function adicionarMarcadorHotel(hotel) {
+    const icone = L.divIcon({ className: "hotel-marker", html: `<div style="width:24px;height:24px;background:linear-gradient(145deg,#ff4b4b,#e70000);border:3px solid white;border-radius:50%;box-shadow:0 3px 6px rgba(0,0,0,0.3);"></div>`, iconSize: [24,24], iconAnchor: [12,12] });
+    L.marker([hotel.lat, hotel.lng], { icon: icone }).addTo(map).on("click", () => exibirHotel(hotel));
+}
+
+function exibirHotel(hotel) {
+    const box = document.getElementById("hotel-info");
+    if (!box) return;
+    box.style.display = "block";
+    const estrelas = "⭐".repeat(hotel.rating || 5);
+    box.innerHTML = `
+        <h2 style="color:white; margin-bottom: .5rem;">${hotel.nome}</h2>
+        <p style="opacity:.85;margin-bottom:1rem;">📍 ${hotel.endereco}</p>
+        <div class="carousel-container" style="position:relative;overflow:hidden;height:250px;border-radius:10px;margin-bottom:1rem;">
+            ${hotel.imagens.map((img,i)=>`<img src="img/${img}" class="carousel-img" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;opacity:${i===0?1:0};transition:opacity .4s;">`).join("")}
         </div>
-    </header>
+        <div style="font-size:1.5rem;margin-bottom:1rem;">${estrelas}</div>
+    `;
+    iniciarCarrossel();
+}
 
-    <main class="hotel-main">
-        <div class="hotel-container">
-            <div class="hotel-header">
-                <h1>SEU HOTEL</h1>
-                <p>Ainda não cadastrou seu hotel? <a href="cadastrar.html" class="link-cadastro">Clique aqui</a> e cadastre-o!</p>
-            </div>
+function iniciarCarrossel() {
+    const imgs = document.querySelectorAll(".carousel-img");
+    let idx = 0;
+    if (imgs.length <= 1) return;
+    setInterval(() => {
+        imgs[idx].style.opacity = 0;
+        idx = (idx + 1) % imgs.length;
+        imgs[idx].style.opacity = 1;
+    }, 2500);
+}
 
-                <div class="hotel-card">
-                    <h2 class="hotel-name">Nome do Hotel</h2>
+async function obterCoordenadas(endereco) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}`, { headers: { "User-Agent": "PetMap/1.0" } });
+        const data = await response.json();
+        if (data.length === 0) return null;
+        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    } catch { return null; }
+}
 
-                    <div class="carousel">
-                        <div class="carousel-inner">
-                        </div>
-
-                        <button class="nav-btn prev-btn" aria-label="Imagem anterior">❮</button>
-                        <button class="nav-btn next-btn" aria-label="Próxima imagem">❯</button>
-                    </div>
-
-                <div class="hotel-rating">
-                    <span class="star">★</span>
-                    <span class="star">★</span>
-                    <span class="star">★</span>
-                    <span class="star">★</span>
-                    <span class="star">★</span>
-                </div>
-
-                <div class="hotel-location">
-                    <img src="placeholder.svg" alt="Localização" class="location-icon">
-                    <span>Local - Local</span>
-                </div>
-            </div>
-
-            <div class="hotel-form">
-                <h3>Editar Informações do Hotel</h3>
-
-                <form>
-                    <div class="form-group">
-                        <label for="nome">Nome:</label>
-                        <input type="text" id="nome" placeholder="Nome do Hotel">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="endereco">Endereço:</label>
-                        <input type="text" id="endereco" placeholder="Formato: Rua, Bairro, Cidade, Estado, País">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pets">Pets Aceitos:</label>
-                        <input type="text" id="pets" placeholder="Pets Aceitos">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" placeholder="Email">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="telefone">Telefone:</label>
-                        <input type="tel" id="telefone" placeholder="Telefone">
-                    </div>
-
-                    <div class="social-links">
-                        <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="social-item">
-                            <div class="social-icon whatsapp">
-                                <img src="img/IconWhatsapp.png" alt="WhatsApp">
-                            </div>
-                            <span>11 98765-4321</span>
-                        </a>
-
-                        <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" class="social-item">
-                            <div class="social-icon instagram">
-                                <img src="img/IconInstagram.png" alt="Instagram">
-                            </div>
-                            <span>@usuario</span>
-                        </a>
-
-                        <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" class="social-item">
-                            <div class="social-icon facebook">
-                                <img src="img/IconFacebook.png" alt="Facebook">
-                            </div>
-                            <span>usuario</span>
-                        </a>
-                    </div>
-
-                    <div class="additional-images">
-                        <p>Adicione novas imagens aqui</p>
-                        <input type="file" id="additional-upload" multiple accept="image/*" class="file-input">
-                        <label for="additional-upload" class="upload-btn">Escolher Imagens</label>
-
-                        <div class="preview-grid" id="preview-grid"></div>
-                    </div>
-
-
-                    <button type="submit" class="submit-btn">Enviar Alterações</button>
-
-                    <button type="button" id="logout-btn" class="logout-btn">Sair</button>
-
-                </form>
-
-                
-
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-links">
-            <a href="index.html#quem-somos">Quem Somos</a>
-            <span class="footer-separator">-</span>
-            <a href="index.html"><b>PetMap®</b></a>
-            <span class="footer-separator">-</span>
-            <a href="index.html#contato">Contato</a>
-        </div>
-    </footer>
-
-    <script type="module" src="/js/hotel.js"></script>
-
-
-</body>
-
-</html>
-
+async function cadastrarHotel(nome,endereco) {
+    const coords = await obterCoordenadas(endereco);
+    if (!coords) return;
+    const novoHotel = { nome, endereco, lat: coords.lat, lng: coords.lng, imagens: ["default1.jpg","default2.jpg","default3.jpg"], rating: 5 };
+    hoteis.push(novoHotel);
+    adicionarMarcadorHotel(novoHotel);
+}

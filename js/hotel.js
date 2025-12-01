@@ -141,7 +141,7 @@ function exibirHotel(hotel) {
 
         <div class="carousel-container" style="position:relative; overflow:hidden; height:250px; border-radius:10px; margin-bottom:1rem;">
             ${hotel.imagens.map((img, i) => `
-                <img src="/img/${img}" class="carousel-img" style="
+                <img src="img/${img}" class="carousel-img" style="
                     width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;
                     opacity:${i === 0 ? 1 : 0};
                     transition: opacity .4s;
@@ -239,5 +239,6 @@ onAuthStateChanged(auth, async (user) => {
         }
     }
 });
+
 
 
